@@ -33,6 +33,18 @@
             text-decoration: none;
             border-radius: 5px;
         }
+        .categories {
+            margin-top: 20px;
+        }
+        .category {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 15px;
+            background-color: #8FBC8F;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
         .products {
             display: flex;
             flex-wrap: wrap;
@@ -56,7 +68,8 @@
     <div class="container">
         <h2>Welcome to Our Vintage Collection</h2>
         <p>Browse unique and timeless treasures from our curated vintage selection.</p>
-        <a class="ebay-link" href="https://www.ebay.com/sch/i.html?item=335832107676&rt=nc&_trksid=p4429486.m3561.l161211&_ssn=nomadiccollectibles420" target="_blank">Shop on eBay</a>
+        <a class="ebay-link" href="https://www.ebay.com/sch/i.html?_ssn=nomadiccollectibles420" target="_blank">Shop on eBay</a>
+        <div class="categories" id="categories"></div>
         <div class="products" id="products"></div>
     </div>
     <script>
@@ -71,22 +84,39 @@
             let productContainer = document.getElementById('products');
             productContainer.innerHTML = '';
             
-            items.forEach((item, index) => {
-                if (index < 6) { // Show only first 6 items
-                    let title = item.querySelector('.s-item__title')?.textContent || 'No Title';
-                    let image = item.querySelector('.s-item__image-img')?.src || '';
-                    let link = item.querySelector('.s-item__link')?.href || '#';
-                    
-                    let productHTML = `
-                        <div class="product">
-                            <img src="${image}" alt="${title}" width="100%">
-                            <p>${title}</p>
-                            <a href="${link}" target="_blank">View on eBay</a>
-                        </div>
-                    `;
-                    productContainer.innerHTML += productHTML;
+            let categories = new Set();
+            let categorizedProducts = {};
+            
+            items.forEach(item => {
+                let title = item.querySelector('.s-item__title')?.textContent || 'No Title';
+                let image = item.querySelector('.s-item__image-img')?.src || '';
+                let link = item.querySelector('.s-item__link')?.href || '#';
+                let category = item.querySelector('.s-item__subtitle')?.textContent || 'Miscellaneous';
+                
+                categories.add(category);
+                if (!categorizedProducts[category]) {
+                    categorizedProducts[category] = [];
                 }
+                categorizedProducts[category].push(`
+                    <div class="product">
+                        <img src="${image}" alt="${title}" width="100%">
+                        <p>${title}</p>
+                        <a href="${link}" target="_blank">View on eBay</a>
+                    </div>
+                `);
             });
+            
+            let categoriesContainer = document.getElementById('categories');
+            categoriesContainer.innerHTML = '';
+            
+            categories.forEach(category => {
+                let categoryLink = `<a class="category" href="#" onclick="showCategory('${category}')">${category}</a>`;
+                categoriesContainer.innerHTML += categoryLink;
+            });
+            
+            window.showCategory = function(category) {
+                productContainer.innerHTML = categorizedProducts[category].join('');
+            }
         }
         fetchEbayProducts();
     </script>
